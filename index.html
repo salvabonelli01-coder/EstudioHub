@@ -7,7 +7,6 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-    <!-- Iconos Phosphor -->
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <style>
         :root {
@@ -187,8 +186,7 @@
             <div class="panel">
                 <h2><i class="ph ph-calendar-blank"></i> Próximos Pasos</h2>
                 <div class="events-list" id="upcoming-events">
-                    <!-- Eventos renderizados por JS -->
-                </div>
+                    </div>
             </div>
         </div>
 
@@ -196,8 +194,7 @@
             <h2>Tus Materias</h2>
         </div>
         <div class="subjects-grid" id="subjects-grid">
-            <!-- Tarjetas de materias -->
-        </div>
+            </div>
     </div>
 
     <div id="subject-view" class="hidden">
@@ -215,10 +212,8 @@
             <button class="tab-btn" onclick="switchTab(event, 'tab-temario')"><i class="ph ph-list-checks"></i> Temario (Checklist)</button>
         </div>
 
-        <!-- Pestaña 1: Recursos y Machetes -->
         <div id="tab-recursos" class="tab-content active">
             <div class="content-grid">
-                <!-- Machetes Visuales -->
                 <div class="panel">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
                         <h2><i class="ph ph-note-pencil"></i> Machetes Visuales</h2>
@@ -232,7 +227,6 @@
                     <div id="machetes-list"></div>
                 </div>
 
-                <!-- Archivos IndexedDB -->
                 <div class="panel">
                     <h2><i class="ph ph-files"></i> Repositorio de Archivos</h2>
                     <div class="upload-area">
@@ -280,8 +274,7 @@
                 <div class="panel">
                     <h2><i class="ph ph-magic-wand"></i> Simulador de Aprobación</h2>
                     <div class="simulator-box" id="simulator-output">
-                        <!-- Calculado por JS -->
-                    </div>
+                        </div>
                 </div>
             </div>
         </div>
@@ -295,8 +288,7 @@
                 </div>
                 
                 <div id="checklist-container">
-                    <!-- Items del checklist -->
-                </div>
+                    </div>
             </div>
         </div>
     </div>
@@ -347,7 +339,6 @@
     // Obtener y adaptar el array de materias (V1 a V2)
     let subjects = JSON.parse(localStorage.getItem('db_hub_subjects')) || [];
     subjects = subjects.map(sub => {
-        // Si viene de la versión anterior, lo actualizamos al nuevo esquema
         if (!Array.isArray(sub.grades)) {
             const oldGrades = sub.grades || {};
             sub.grades = [
@@ -357,12 +348,29 @@
             ];
             sub.color = ['#2563eb', '#10b981', '#f59e0b', '#8b5cf6'][Math.floor(Math.random()*4)];
             sub.icon = '📚';
-            sub.passingGrade = 6; // Por default aprueba con 6
+            sub.passingGrade = 6;
             sub.machetes = [];
             sub.checklist = [];
         }
         return sub;
     });
+
+    // --- FUNCIÓN DE ACTUALIZACIÓN ÚNICA ---
+    function updateGradeField(id, field, value) {
+        const subject = subjects.find(s => s.id === activeSubjectId);
+        if (!subject) return;
+
+        const grade = subject.grades.find(g => g.id === id);
+        if (grade) {
+            if (field === 'score') {
+                grade.score = value === "" ? null : parseFloat(value);
+            } else {
+                grade[field] = value;
+            }
+            saveData();
+            console.log(`Guardado: ${field} = ${value}`);
+        }
+    }
 
     // Guardar estado
     function saveData() {
@@ -404,13 +412,11 @@
         let upcomingEvents = [];
 
         subjects.forEach(sub => {
-            // Contar para la barra de progreso global
             if (sub.checklist) {
                 totalTopics += sub.checklist.length;
                 completedTopics += sub.checklist.filter(c => c.status === 'done').length;
             }
 
-            // Recolectar eventos
             if (sub.grades) {
                 sub.grades.forEach(g => {
                     if (g.date && !g.score) {
@@ -419,7 +425,6 @@
                 });
             }
 
-            // Renderizar Tarjeta
             const progressPercent = sub.checklist?.length > 0 
                 ? Math.round((sub.checklist.filter(c=>c.status==='done').length / sub.checklist.length) * 100) 
                 : 0;
@@ -449,12 +454,10 @@
             grid.appendChild(card);
         });
 
-        // Actualizar barra global
         const globalPercent = totalTopics > 0 ? Math.round((completedTopics / totalTopics) * 100) : 0;
         document.getElementById('global-progress').style.width = `${globalPercent}%`;
         document.getElementById('global-progress-text').innerText = `${globalPercent}%`;
 
-        // Actualizar próximos eventos (ordenar por fecha)
         const eventsContainer = document.getElementById('upcoming-events');
         upcomingEvents.sort((a, b) => new Date(a.date) - new Date(b.date));
         
@@ -496,7 +499,6 @@
     function deleteSubject(id) {
         if(confirm('¿Seguro que querés borrar la materia y todos sus archivos?')) {
             subjects = subjects.filter(sub => sub.id !== id);
-            // Borrar archivos de IndexedDB
             const store = db.transaction(["files"], "readwrite").objectStore("files");
             const req = store.getAll();
             req.onsuccess = () => {
@@ -561,7 +563,7 @@
     }
 
     function deleteMachete(mId, event) {
-        event.preventDefault(); // Evita que el details se abra/cierre
+        event.preventDefault();
         const subject = subjects.find(s => s.id === activeSubjectId);
         subject.machetes = subject.machetes.filter(m => m.id !== mId);
         saveData();
@@ -570,7 +572,6 @@
     function renderGrades(subject) {
         document.getElementById('passing-grade-input').value = subject.passingGrade || 6;
         
-        // Generador de opciones para el select (1.0 a 10.0 con paso 0.5)
         const generateOptions = (selected) => {
             let options = `<option value="">--</option>`;
             for(let i = 1; i <= 10; i += 0.5) {
@@ -599,17 +600,6 @@
 
         calculateSimulator(subject);
     }
-
-    function updateGradeField(id, field, value) {
-    const subject = subjects.find(s => s.id === activeSubjectId);
-    const grade = subject.grades.find(g => g.id === id);
-    
-    if (grade) {
-        // Corregimos 'eval' por 'grade'
-        grade[field] = field === 'score' ? (value ? parseFloat(value) : null) : value;
-        saveData();
-    }
-}
 
     function updatePassingGrade(val) {
         const subject = subjects.find(s => s.id === activeSubjectId);
@@ -664,7 +654,6 @@
         } else if (missingWeight === 0 && missingPoints > 0) {
             output.innerHTML = `<h3 style="color: var(--danger)"><i class="ph ph-x-circle"></i> No alcanzó</h3><p style="font-size: 0.9rem;">Nota final: ${currentPoints.toFixed(2)}. Faltaron ${missingPoints.toFixed(2)} pts.</p>`;
         } else {
-            // Calcular cuánto se necesita en el porcentaje restante
             const neededAverage = (missingPoints / (missingWeight / 100)).toFixed(2);
             
             if (neededAverage > 10) {
@@ -767,23 +756,6 @@
 
     function openModal(id) { document.getElementById(id).classList.add('active'); }
     function closeModal(id) { document.getElementById(id).classList.remove('active'); }
-
-    function updateGradeField(gradeId, field, value) {
-        const subject = subjects.find(s => s.id === activeSubjectId);
-        if (!subject) return;
-
-        const grade = subject.grades.find(g => g.id === gradeId);
-        
-        if (grade) {
-            if (field === 'score') {
-                grade.score = value === "" ? null : parseFloat(value);
-            } else {
-                grade[field] = value;
-            }
-            saveData(); 
-            console.log(`Guardado: ${field} = ${value}`);
-        }
-    }
 </script>
 </body>
 </html>
