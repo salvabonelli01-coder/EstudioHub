@@ -764,6 +764,27 @@
     function openModal(id) { document.getElementById(id).classList.add('active'); }
     function closeModal(id) { document.getElementById(id).classList.remove('active'); }
 
+    function updateGradeField(gradeId, field, value) {
+    // 1. Buscamos el sujeto activo
+    const subject = subjects.find(s => s.id === activeSubjectId);
+    if (!subject) return;
+
+    // 2. Buscamos la nota específica dentro de ese sujeto
+    const grade = subject.grades.find(g => g.id === gradeId);
+    
+    if (grade) {
+        // 3. Actualizamos el valor correctamente usando 'grade'
+        if (field === 'score') {
+            grade.score = value === "" ? null : parseFloat(value);
+        } else {
+            grade[field] = value;
+        }
+        
+        // 4. Guardamos los cambios
+        saveData(); 
+        console.log(`Guardado: ${field} = ${value}`);
+    }
+}
 </script>
 </body>
 </html>
