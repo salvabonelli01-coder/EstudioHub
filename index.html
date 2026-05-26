@@ -601,11 +601,15 @@
     }
 
     function updateGradeField(id, field, value) {
-        const subject = subjects.find(s => s.id === activeSubjectId);
-        const grade = subject.grades.find(g => g.id === id);
-        eval[field] = field === 'score' ? (value ? parseFloat(value) : null) : value;
+    const subject = subjects.find(s => s.id === activeSubjectId);
+    const grade = subject.grades.find(g => g.id === id);
+    
+    if (grade) {
+        // Corregimos 'eval' por 'grade'
+        grade[field] = field === 'score' ? (value ? parseFloat(value) : null) : value;
         saveData();
     }
+}
 
     function updatePassingGrade(val) {
         const subject = subjects.find(s => s.id === activeSubjectId);
