@@ -180,7 +180,7 @@
     <div id="dashboard-view">
         <header class="topbar">
             <div class="greeting">
-                <h1>Hola, Estudiante 👋</h1>
+                <h1>Hola, <span id="username-display" style="cursor: pointer;" onclick="changeUsername()" title="Hacé click para cambiar tu nombre">Estudiante</span> 👋</h1>
                 <p>Bienvenido a tu centro de control. Así viene tu cursada.</p>
             </div>
             <button class="btn btn-primary" style="width: 100%; max-width: 200px;" onclick="openModal('modal-add-subject')">
@@ -399,6 +399,7 @@
     };
 
     function initApp() {
+        loadUsername(); // <-- Agregamos esta línea
         updateDashboard();
     }
 
@@ -778,6 +779,34 @@
 
     function openModal(id) { document.getElementById(id).classList.add('active'); }
     function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+
+    // Función para cargar y mostrar el nombre del usuario
+function loadUsername() {
+    let savedName = localStorage.getItem('db_hub_username');
+    
+    // Si no hay nombre guardado, le pedimos uno por primera vez
+    if (!savedName) {
+        savedName = prompt("¡Bienvenido a EstudioHub! ¿Cuál es tu nombre?", "Estudiante");
+        if (!savedName || savedName.trim() === "") {
+            savedName = "Estudiante";
+        }
+        localStorage.setItem('db_hub_username', savedName.trim());
+    }
+    
+    // Lo mostramos en pantalla
+    document.getElementById('username-display').innerText = savedName;
+}
+
+// Función por si el usuario quiere hacer click sobre su nombre y cambiarlo
+function changeUsername() {
+    const currentName = localStorage.getItem('db_hub_username') || "Estudiante";
+    const newName = prompt("Modificá tu nombre de usuario:", currentName);
+    
+    if (newName && newName.trim() !== "") {
+        localStorage.setItem('db_hub_username', newName.trim());
+        document.getElementById('username-display').innerText = newName.trim();
+    }
+}
 </script>
 </body>
 </html>
