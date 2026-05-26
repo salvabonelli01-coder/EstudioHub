@@ -38,9 +38,11 @@
             background-color: var(--bg-main);
             color: var(--text-main);
             line-height: 1.6;
+            -webkit-tap-highlight-color: transparent; /* Mejora la respuesta táctil */
         }
 
-        .app-container { max-width: 1400px; margin: 0 auto; padding: 2rem; }
+        .app-container { max-width: 1400px; margin: 0 auto; padding: 1rem; }
+        @media (min-width: 768px) { .app-container { padding: 2rem; } }
         
         .hidden { display: none !important; }
         
@@ -48,7 +50,7 @@
             display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
             padding: 0.6rem 1.2rem; background: var(--bg-card); border: 1px solid var(--border-color);
             border-radius: var(--radius-sm); font-weight: 500; cursor: pointer; transition: var(--transition);
-            color: var(--text-main); font-family: inherit; font-size: 0.9rem;
+            color: var(--text-main); font-family: inherit; font-size: 0.9rem; min-height: 44px; /* Tamaño recomendado para dedos */
         }
         .btn:hover { background: var(--bg-main); }
         .btn-primary { background: var(--primary); color: white; border-color: var(--primary); }
@@ -58,18 +60,22 @@
         
         input, select, textarea {
             padding: 0.6rem; border: 1px solid var(--border-color); border-radius: var(--radius-sm);
-            font-family: inherit; font-size: 0.9rem; outline: none; width: 100%; transition: border-color 0.2s;
+            font-family: inherit; font-size: 16px; outline: none; width: 100%; transition: border-color 0.2s;
+            /* Usar font-size: 16px evita el zoom automático molesto en Safari de iOS */
         }
         input:focus, select:focus, textarea:focus { border-color: var(--primary); }
 
-        .topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2.5rem; }
+        .topbar { display: flex; flex-direction: column; gap: 1rem; margin-bottom: 2.5rem; align-items: flex-start; }
+        @media (min-width: 600px) { .topbar { flex-direction: row; justify-content: space-between; align-items: center; } }
+        
         .greeting h1 { font-size: 1.8rem; font-weight: 700; letter-spacing: -0.02em; }
         .greeting p { color: var(--text-muted); }
 
-        .dashboard-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; margin-bottom: 2rem; }
-        @media (max-width: 1024px) { .dashboard-grid { grid-template-columns: 1fr; } }
+        .dashboard-grid { display: grid; grid-template-columns: 1fr; gap: 2rem; margin-bottom: 2rem; }
+        @media (min-width: 1024px) { .dashboard-grid { grid-template-columns: 2fr 1fr; } }
 
-        .panel { background: var(--bg-card); padding: 1.5rem; border-radius: var(--radius); box-shadow: var(--shadow); border: 1px solid var(--border-color); }
+        .panel { background: var(--bg-card); padding: 1.2rem; border-radius: var(--radius); box-shadow: var(--shadow); border: 1px solid var(--border-color); }
+        @media (min-width: 768px) { .panel { padding: 1.5rem; } }
         .panel h2 { font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
 
         /* Barra de Progreso Global */
@@ -92,16 +98,18 @@
         .card-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
         .card-title { font-size: 1.2rem; font-weight: 600; margin-bottom: 0.25rem; }
         .card-status { font-size: 0.85rem; color: var(--text-muted); }
-        .card-delete { position: absolute; bottom: 1rem; right: 1rem; opacity: 0; transition: opacity 0.2s; background: none; border: none; color: var(--danger); cursor: pointer; font-size: 1.2rem; }
-        .subject-card:hover .card-delete { opacity: 1; }
+        
+        .card-delete { position: absolute; bottom: 1rem; right: 1rem; background: none; border: none; color: var(--danger); cursor: pointer; font-size: 1.2rem; padding: 0.5rem; }
+        @media (min-width: 768px) { .card-delete { opacity: 0; transition: opacity 0.2s; } .subject-card:hover .card-delete { opacity: 1; } }
 
         .view-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem; }
         .back-btn { background: var(--bg-card); border: 1px solid var(--border-color); width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: var(--transition); }
         .back-btn:hover { background: var(--primary-light); color: var(--primary); }
         .view-title h2 { font-size: 1.8rem; font-weight: 700; }
         
-        .tabs { display: flex; gap: 1rem; margin-bottom: 2rem; border-bottom: 1px solid var(--border-color); overflow-x: auto; padding-bottom: 1px; }
-        .tab-btn { background: none; border: none; padding: 0.75rem 1.5rem; font-size: 0.95rem; font-weight: 500; color: var(--text-muted); cursor: pointer; position: relative; white-space: nowrap; }
+        .tabs { display: flex; gap: 0.5rem; margin-bottom: 2rem; border-bottom: 1px solid var(--border-color); overflow-x: auto; padding-bottom: 1px; -webkit-overflow-scrolling: touch; }
+        .tabs::-webkit-scrollbar { display: none; } /* Oculta barra en móviles */
+        .tab-btn { background: none; border: none; padding: 0.75rem 1rem; font-size: 0.95rem; font-weight: 500; color: var(--text-muted); cursor: pointer; position: relative; white-space: nowrap; }
         .tab-btn:hover { color: var(--primary); }
         .tab-btn.active { color: var(--primary); font-weight: 600; }
         .tab-btn.active::after { content: ''; position: absolute; bottom: -1px; left: 0; right: 0; height: 3px; background: var(--primary); border-radius: 3px 3px 0 0; }
@@ -110,8 +118,8 @@
         .tab-content.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
-        .content-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
-        @media (max-width: 900px) { .content-grid { grid-template-columns: 1fr; } }
+        .content-grid { display: grid; grid-template-columns: 1fr; gap: 2rem; }
+        @media (min-width: 900px) { .content-grid { grid-template-columns: 1fr 1fr; gap: 2rem; } }
         
         .machete-item { margin-bottom: 1rem; border: 1px solid var(--border-color); border-radius: var(--radius-sm); overflow: hidden; background: var(--bg-card); }
         .machete-item summary { padding: 1rem; font-weight: 600; cursor: pointer; background: var(--bg-main); list-style: none; display: flex; justify-content: space-between; align-items: center; }
@@ -128,10 +136,12 @@
         .file-item { display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 1rem; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-sm); }
         .file-item:hover { border-color: var(--primary); }
 
-        .grades-table { width: 100%; border-collapse: collapse; margin-bottom: 1rem; }
+        /* Contenedor responsivo indispensable para que la tabla no rompa la pantalla */
+        .table-responsive { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; margin-bottom: 1rem; border-radius: var(--radius-sm); }
+        .grades-table { width: 100%; border-collapse: collapse; min-width: 500px; } /* Evita que las columnas colapsen en pantallas chicas */
         .grades-table th { text-align: left; padding: 0.75rem; color: var(--text-muted); font-size: 0.85rem; font-weight: 600; text-transform: uppercase; border-bottom: 2px solid var(--border-color); }
         .grades-table td { padding: 0.75rem; border-bottom: 1px solid var(--border-color); vertical-align: middle; }
-        .grades-table select { width: 100px; text-align: center; font-family: 'JetBrains Mono', monospace; font-weight: 600; }
+        .grades-table select, .grades-table input[type="date"] { width: 100%; max-width: 130px; padding: 0.4rem; }
         
         .simulator-box { background: var(--primary-light); border: 1px dashed var(--primary); padding: 1.5rem; border-radius: var(--radius-sm); margin-top: 1rem; text-align: center; }
         .simulator-box h3 { color: var(--primary); font-size: 1.1rem; margin-bottom: 0.5rem; }
@@ -139,13 +149,22 @@
 
         .checklist-item { display: flex; align-items: center; justify-content: space-between; padding: 0.75rem; border-bottom: 1px solid var(--border-color); transition: background 0.2s; }
         .checklist-item:hover { background: var(--bg-main); }
-        .checklist-left { display: flex; align-items: center; gap: 1rem; }
-        .checklist-item input[type="checkbox"] { width: 20px; height: 20px; accent-color: var(--success); cursor: pointer; }
+        .checklist-left { display: flex; align-items: center; gap: 1rem; width: 85%; }
+        .checklist-item input[type="checkbox"] { width: 22px; height: 22px; min-width: 22px; accent-color: var(--success); cursor: pointer; }
         .checklist-item.done span { text-decoration: line-through; color: var(--text-muted); }
 
-        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 1000; }
+        /* Modal con soporte responsivo para móviles estilo Ficha de abajo */
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); align-items: flex-end; justify-content: center; z-index: 1000; }
+        @media (min-width: 600px) { .modal { align-items: center; } }
         .modal.active { display: flex; }
-        .modal-content { background: var(--bg-card); padding: 2rem; border-radius: var(--radius); width: 100%; max-width: 400px; box-shadow: var(--shadow-hover); }
+        
+        .modal-content { 
+            background: var(--bg-card); padding: 2rem; 
+            border-radius: var(--radius) var(--radius) 0 0; width: 100%; 
+            max-height: 85vh; overflow-y: auto; box-shadow: var(--shadow-hover);
+        }
+        @media (min-width: 600px) { .modal-content { border-radius: var(--radius); max-width: 400px; } }
+        
         .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
         
         .events-list { display: flex; flex-direction: column; gap: 0.75rem; }
@@ -164,7 +183,7 @@
                 <h1>Hola, Estudiante 👋</h1>
                 <p>Bienvenido a tu centro de control. Así viene tu cursada.</p>
             </div>
-            <button class="btn btn-primary" onclick="openModal('modal-add-subject')">
+            <button class="btn btn-primary" style="width: 100%; max-width: 200px;" onclick="openModal('modal-add-subject')">
                 <i class="ph ph-plus-circle"></i> Nueva Materia
             </button>
         </header>
@@ -243,31 +262,35 @@
         <div id="tab-notas" class="tab-content">
             <div class="content-grid">
                 <div class="panel">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <div style="display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1rem;">
                         <h2><i class="ph ph-exam"></i> Evaluaciones</h2>
-                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem;">
                             <label style="font-size: 0.85rem; font-weight: 600;">Nota mínima de aprobación:</label>
                             <input type="number" id="passing-grade-input" min="1" max="10" step="0.5" style="width: 70px; padding: 0.3rem;" onchange="updatePassingGrade(this.value)">
                         </div>
                     </div>
                     
-                    <table class="grades-table">
-                        <thead>
-                            <tr>
-                                <th>Instancia</th>
-                                <th>Ponderación (%)</th>
-                                <th>Fecha</th>
-                                <th>Nota</th>
-                                <th></th>
-                            </tr>
-                        </thead>
-                        <tbody id="grades-tbody"></tbody>
-                    </table>
+                    <div class="table-responsive">
+                        <table class="grades-table">
+                            <thead>
+                                <tr>
+                                    <th>Instancia</th>
+                                    <th>Ponderación (%)</th>
+                                    <th>Fecha</th>
+                                    <th>Nota</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody id="grades-tbody"></tbody>
+                        </table>
+                    </div>
 
-                    <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
-                        <input type="text" id="new-eval-name" placeholder="Ej: Recuperatorio" style="flex: 2;">
-                        <input type="number" id="new-eval-weight" placeholder=" %" style="flex: 1;" min="1" max="100">
-                        <button class="btn btn-primary" onclick="addGradeComponent()">Agregar</button>
+                    <div style="display: flex; flex-direction: column; gap: 0.5rem; margin-top: 1rem;">
+                        <div style="display: flex; gap: 0.5rem;">
+                            <input type="text" id="new-eval-name" placeholder="Ej: Recuperatorio" style="flex: 2;">
+                            <input type="number" id="new-eval-weight" placeholder=" %" style="flex: 1;" min="1" max="100">
+                        </div>
+                        <button class="btn btn-primary" style="width: 100%;" onclick="addGradeComponent()">Agregar Componente</button>
                     </div>
                 </div>
 
@@ -282,9 +305,9 @@
         <div id="tab-temario" class="tab-content">
             <div class="panel" style="max-width: 800px; margin: 0 auto;">
                 <h2><i class="ph ph-list-numbers"></i> Temario para Estudiar</h2>
-                <div style="display: flex; gap: 0.5rem; margin-bottom: 1.5rem;">
+                <div style="display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1.5rem;">
                     <input type="text" id="new-topic-input" placeholder="Ej: Unidad 1 - Modelo OSI" onkeypress="if(event.key === 'Enter') addTopic()">
-                    <button class="btn btn-primary" onclick="addTopic()">Agregar Tema</button>
+                    <button class="btn btn-primary" style="width: 100%;" onclick="addTopic()">Agregar Tema</button>
                 </div>
                 
                 <div id="checklist-container">
@@ -298,7 +321,7 @@
     <div class="modal-content">
         <div class="modal-header">
             <h3>Nueva Materia</h3>
-            <button class="btn" style="padding: 0.2rem 0.5rem;" onclick="closeModal('modal-add-subject')">&times;</button>
+            <button class="btn" style="padding: 0.2rem 0.5rem; min-height: auto;" onclick="closeModal('modal-add-subject')">&times;</button>
         </div>
         <div style="display: flex; flex-direction: column; gap: 1rem;">
             <div>
@@ -326,7 +349,7 @@
                     <option value="#065f46">Verde oscuro</option>
                 </select>
             </div>
-            <button class="btn btn-primary" style="margin-top: 1rem;" onclick="addSubject()">Crear Materia</button>
+            <button class="btn btn-primary" style="margin-top: 1rem; width: 100%;" onclick="addSubject()">Crear Materia</button>
         </div>
     </div>
 </div>
@@ -348,31 +371,14 @@
             ];
             sub.color = ['#2563eb', '#10b981', '#f59e0b', '#8b5cf6'][Math.floor(Math.random()*4)];
             sub.icon = '📚';
-            sub.passingGrade = 6;
+            sub.passingGrade = 6; 
             sub.machetes = [];
             sub.checklist = [];
         }
         return sub;
     });
 
-    // --- FUNCIÓN DE ACTUALIZACIÓN ÚNICA ---
-    function updateGradeField(id, field, value) {
-        const subject = subjects.find(s => s.id === activeSubjectId);
-        if (!subject) return;
-
-        const grade = subject.grades.find(g => g.id === id);
-        if (grade) {
-            if (field === 'score') {
-                grade.score = value === "" ? null : parseFloat(value);
-            } else {
-                grade[field] = value;
-            }
-            saveData();
-            console.log(`Guardado: ${field} = ${value}`);
-        }
-    }
-
-    // Guardar estado
+    // Guardar estado e hidratar vistas
     function saveData() {
         localStorage.setItem('db_hub_subjects', JSON.stringify(subjects));
         updateDashboard();
@@ -416,7 +422,6 @@
                 totalTopics += sub.checklist.length;
                 completedTopics += sub.checklist.filter(c => c.status === 'done').length;
             }
-
             if (sub.grades) {
                 sub.grades.forEach(g => {
                     if (g.date && !g.score) {
@@ -555,7 +560,7 @@
             <details class="machete-item">
                 <summary>
                     ${m.title} 
-                    <button class="btn btn-danger" style="padding: 0.2rem 0.5rem; background: none; border: none;" onclick="deleteMachete('${m.id}', event)"><i class="ph ph-trash"></i></button>
+                    <button class="btn btn-danger" style="padding: 0.2rem 0.5rem; min-height: auto; background: none; border: none;" onclick="deleteMachete('${m.id}', event)"><i class="ph ph-trash"></i></button>
                 </summary>
                 <div class="machete-body">${m.content}</div>
             </details>
@@ -563,7 +568,7 @@
     }
 
     function deleteMachete(mId, event) {
-        event.preventDefault();
+        event.preventDefault(); 
         const subject = subjects.find(s => s.id === activeSubjectId);
         subject.machetes = subject.machetes.filter(m => m.id !== mId);
         saveData();
@@ -586,19 +591,36 @@
             <tr>
                 <td style="font-weight: 500;">${g.name}</td>
                 <td>${g.weight}%</td>
-                <td><input type="date" value="${g.date || ''}" onchange="updateGradeField('${g.id}', 'date', this.value)" style="width: auto; padding: 0.3rem;"></td>
+                <td><input type="date" value="${g.date || ''}" onchange="updateGradeField('${g.id}', 'date', this.value)"></td>
                 <td>
                     <select onchange="updateGradeField('${g.id}', 'score', this.value)">
                         ${generateOptions(g.score)}
                     </select>
                 </td>
                 <td>
-                    <button class="btn btn-danger" style="padding: 0.3rem; border: none; background: none;" onclick="deleteGradeComponent('${g.id}')"><i class="ph ph-trash"></i></button>
+                    <button class="btn btn-danger" style="padding: 0.3rem; min-height: auto; border: none; background: none;" onclick="deleteGradeComponent('${g.id}')"><i class="ph ph-trash"></i></button>
                 </td>
             </tr>
         `).join('');
 
         calculateSimulator(subject);
+    }
+
+    function updateGradeField(gradeId, field, value) {
+        const subject = subjects.find(s => s.id === activeSubjectId);
+        if (!subject) return;
+
+        const grade = subject.grades.find(g => g.id === gradeId);
+        
+        if (grade) {
+            if (field === 'score') {
+                grade.score = value === "" ? null : parseFloat(value);
+            } else {
+                grade[field] = value;
+            }
+            saveData(); 
+            console.log(`Guardado: ${field} = ${value}`);
+        }
     }
 
     function updatePassingGrade(val) {
@@ -699,7 +721,7 @@
                     <input type="checkbox" ${c.status === 'done' ? 'checked' : ''} onclick="event.stopPropagation(); toggleTopicStatus('${c.id}')">
                     <span>${c.text}</span>
                 </div>
-                <button class="btn btn-danger" style="background: none; border: none; padding: 0.2rem;" onclick="deleteTopic('${c.id}')"><i class="ph ph-trash"></i></button>
+                <button class="btn btn-danger" style="background: none; border: none; padding: 0.2rem; min-height: auto;" onclick="deleteTopic('${c.id}')"><i class="ph ph-trash"></i></button>
             </div>
         `).join('') || '<p style="color:var(--text-muted); font-size:0.9rem; text-align:center; padding: 1rem;">No agregaste temas todavía.</p>';
     }
@@ -730,9 +752,9 @@
                     <div class="file-item">
                         <div style="display:flex; align-items:center; gap:0.5rem; cursor:pointer;" onclick="openFile('${file.id}')">
                             <span style="background: var(--primary-light); color: var(--primary); padding: 2px 6px; border-radius: 4px; font-size: 0.75rem; font-weight: bold;">${file.type}</span>
-                            <span style="font-size: 0.9rem; font-weight: 500;">${file.name}</span>
+                            <span style="font-size: 0.9rem; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 150px;">${file.name}</span>
                         </div>
-                        <button class="btn btn-danger" style="background: none; border: none;" onclick="deleteFile('${file.id}')"><i class="ph ph-trash"></i></button>
+                        <button class="btn btn-danger" style="background: none; border: none; padding: 0.2rem; min-height: auto;" onclick="deleteFile('${file.id}')"><i class="ph ph-trash"></i></button>
                     </div>
                 `).join('');
         };
