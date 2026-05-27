@@ -473,8 +473,16 @@
                 <select id="schedule-subject-select"></select>
             </div>
             <div>
-                <label style="font-size: 0.85rem; font-weight:600;">Texto de Horas / Turno libre</label>
-                <input type="text" id="schedule-hours-input" placeholder="Ej: 08:00 a 12:00, 18:30 a 22:00">
+                <div style="display: flex; gap: 10px; align-items: center;">
+    <div>
+        <label style="font-size: 0.8rem; font-weight:600;">Desde</label>
+        <select id="hora-inicio"></select>
+    </div>
+    <div>
+        <label style="font-size: 0.8rem; font-weight:600;">Hasta</label>
+        <select id="hora-fin"></select>
+    </div>
+</div>
             </div>
             <button class="btn btn-primary" onclick="addScheduleBlock()">Guardar Horario</button>
         </div>
@@ -535,7 +543,8 @@
         updateDashboard();
         // ... tus otras cargas (theme, username, etc) ...
         updateDashboard();
-        renderSchedule(); // <-- Sumá esta línea
+        renderSchedule(); 
+        llenarSelectoresHorarios();
     }
 
     function showDashboard() {
@@ -1007,19 +1016,23 @@ function renderSchedule() {
     });
 }
 
-// Guarda un nuevo bloque de horario escrito por el usuario
 function addScheduleBlock() {
     const day = document.getElementById('schedule-day-select').value;
     const subjectId = document.getElementById('schedule-subject-select').value;
-    const hours = document.getElementById('schedule-hours-input').value.trim() || "Horario libre";
+    
+    // Capturamos los valores de los nuevos selectores
+    const horaInicio = document.getElementById('hora-inicio').value;
+    const horaFin = document.getElementById('hora-fin').value;
 
     if(!subjectId) return alert("Por favor crea y selecciona una materia válida.");
+    if(horaInicio >= horaFin) return alert("La hora de fin debe ser mayor a la de inicio.");
+
+    // Guardamos el rango formado
+    const hours = `${horaInicio} a ${horaFin}`;
 
     scheduleBlocks.push({ id: 'b_' + Date.now(), day, subjectId, hours });
-    document.getElementById('schedule-hours-input').value = '';
     closeModal('modal-add-schedule');
     
-    // Guardamos y refrescamos
     localStorage.setItem('db_hub_schedule_blocks', JSON.stringify(scheduleBlocks));
     renderSchedule();
 }
@@ -1031,6 +1044,19 @@ function deleteScheduleBlock(id) {
     renderSchedule();
 }
 
+// Función para generar los intervalos de 15 min
+function llenarSelectoresHorarios() {
+    const selects = ['hora-inicio', 'hora-fin'];
+    selects.forEach(id => {
+        const select = document.getElementById(id);
+        for (let h = 0; h < 24; h++) {
+            for (let m = 0; m < 60; m += 15) {
+                let time = `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
+                select.add(new Option(time, time));
+            }
+        }
+    });
+}
 </script>
 </body>
 </html>
