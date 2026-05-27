@@ -52,6 +52,73 @@
             -webkit-tap-highlight-color: transparent; /* Mejora la respuesta táctil */
         }
 
+                /* Cronograma Flexible */
+        .schedule-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); 
+            gap: 1rem; 
+            margin-top: 1rem; 
+        }
+        .day-column { 
+            background: var(--bg-card); 
+            border: 1px solid var(--border-color); 
+            border-radius: var(--radius); 
+            padding: 1rem; 
+            box-shadow: var(--shadow); 
+        }
+        .day-column h3 { 
+            font-size: 1rem; 
+            font-weight: 600; 
+            text-transform: capitalize; 
+            border-bottom: 2px solid var(--border-color); 
+            padding-bottom: 0.5rem; 
+            margin-bottom: 0.75rem; 
+            color: var(--primary); 
+        }
+        .schedule-blocks-list { 
+            display: flex; 
+            flex-direction: column; 
+            gap: 0.5rem; 
+            min-height: 50px; 
+        }
+        .time-block { 
+            position: relative; 
+            padding: 0.75rem; 
+            border-radius: var(--radius-sm); 
+            color: white; 
+            animation: fadeIn 0.2s ease; 
+        }
+        .time-block .block-hours { 
+            font-family: 'JetBrains Mono', monospace; 
+            font-size: 0.8rem; 
+            font-weight: bold; 
+            opacity: 0.9; 
+        }
+        .time-block .block-name { 
+            font-weight: 600; 
+            font-size: 0.95rem; 
+            margin-top: 0.1rem; 
+            padding-right: 1.2rem; 
+        }
+        .time-block .block-del { 
+            position: absolute; 
+            top: 0.4rem; 
+            right: 0.4rem; 
+            background: none; 
+            border: none; 
+            color: white; 
+            opacity: 0.7; 
+            cursor: pointer; 
+            font-size: 0.9rem; 
+        }
+        .time-block .block-del:hover { opacity: 1; }
+        .empty-day-text { 
+            font-size: 0.85rem; 
+            color: var(--text-muted); 
+            text-align: center; 
+            padding: 1rem 0; 
+            font-style: italic; 
+        }
         .app-container { max-width: 1400px; margin: 0 auto; padding: 1rem; }
         @media (min-width: 768px) { .app-container { padding: 2rem; } }
         
@@ -230,6 +297,20 @@
         </div>
         <div class="subjects-grid" id="subjects-grid">
             </div>
+        <div class="panel schedule-panel" style="margin-top: 2rem;">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem; margin-bottom: 1rem;">
+        <div>
+            <h2><i class="ph ph-calendar-clock"></i> Tu Cronograma Semanal</h2>
+            <p style="font-size: 0.85rem; color: var(--text-muted);">Armá tus bloques de cursada libremente (¡múltiples materias por día!).</p>
+        </div>
+        <button class="btn btn-primary" style="min-height: auto; padding: 0.5rem 1rem;" onclick="openModal('modal-add-schedule')">
+            <i class="ph ph-plus"></i> Agregar Horario
+        </button>
+    </div>
+    
+    <div class="schedule-grid" id="schedule-columns-container">
+        </div>
+</div>
     </div>
 
     <div id="subject-view" class="hidden">
@@ -370,7 +451,39 @@
     </div>
 </div>
 
+<div class="modal" id="modal-add-schedule">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Agregar Horario de Cursada</h3>
+            <button class="btn" style="padding: 0.2rem 0.5rem; min-height: auto;" onclick="closeModal('modal-add-schedule')">&times;</button>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 1rem;">
+            <div>
+                <label style="font-size: 0.85rem; font-weight:600;">Día de la semana</label>
+                <select id="schedule-day-select">
+                    <option value="lunes">Lunes</option>
+                    <option value="martes">Martes</option>
+                    <option value="miercoles">Miércoles</option>
+                    <option value="jueves">Jueves</option>
+                    <option value="viernes">Viernes</option>
+                </select>
+            </div>
+            <div>
+                <label style="font-size: 0.85rem; font-weight:600;">Materia</label>
+                <select id="schedule-subject-select"></select>
+            </div>
+            <div>
+                <label style="font-size: 0.85rem; font-weight:600;">Texto de Horas / Turno libre</label>
+                <input type="text" id="schedule-hours-input" placeholder="Ej: 08:00 a 12:00, 18:30 a 22:00">
+            </div>
+            <button class="btn btn-primary" onclick="addScheduleBlock()">Guardar Horario</button>
+        </div>
+    </div>
+</div>
+
 <script>
+    let scheduleBlocks = JSON.parse(localStorage.getItem('db_hub_schedule_blocks')) || [];
+    const daysList = ["lunes", "martes", "miercoles", "jueves", "viernes"];
     // Configuración Inicial y Migración de Datos Antiguos
     let db;
     let activeSubjectId = null;
@@ -420,6 +533,9 @@
         loadTheme();      // <-- Nueva línea para el tema
         loadUsername();   // (La que agregamos antes)
         updateDashboard();
+        // ... tus otras cargas (theme, username, etc) ...
+        updateDashboard();
+        renderSchedule(); // <-- Sumá esta línea
     }
 
     function showDashboard() {
@@ -495,6 +611,11 @@
                     <div class="event-title">${e.evalName} - <span style="color: var(--text-muted); font-size: 0.85rem;">${e.subjectName}</span></div>
                 </div>
             `).join('');
+        }
+        // Pega esto justo antes de cerrar la llave } de updateDashboard()
+        const select = document.getElementById('schedule-subject-select');
+        if(select) {
+            select.innerHTML = subjects.map(s => `<option value="${s.id}">${s.name}</option>`).join('') || '<option value="">Crea una materia primero</option>';
         }
     }
 
@@ -850,6 +971,66 @@ function loadTheme() {
     }
     updateThemeButton(isDark);
 }
+
+// Renderiza las 5 columnas y mete los bloques correspondientes de forma apilada
+function renderSchedule() {
+    const container = document.getElementById('schedule-columns-container');
+    if (!container) return;
+    container.innerHTML = '';
+
+    daysList.forEach(day => {
+        const col = document.createElement('div');
+        col.className = 'day-column';
+        
+        const dayBlocks = scheduleBlocks.filter(b => b.day === day);
+        let blocksHTML = '';
+        
+        if(dayBlocks.length === 0) {
+            blocksHTML = `<p class="empty-day-text">Sin cursadas</p>`;
+        } else {
+            blocksHTML = dayBlocks.map(b => {
+                const sub = subjects.find(s => s.id === b.subjectId);
+                const name = sub ? sub.name : 'Materia eliminada';
+                const color = sub ? sub.color : '#64748b';
+                return `
+                    <div class="time-block" style="background-color: ${color}">
+                        <div class="block-hours"><i class="ph ph-clock"></i> ${b.hours}</div>
+                        <div class="block-name">${name}</div>
+                        <button class="block-del" onclick="deleteScheduleBlock('${b.id}')">&times;</button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        col.innerHTML = `<h3>${day}</h3><div class="schedule-blocks-list">${blocksHTML}</div>`;
+        container.appendChild(col);
+    });
+}
+
+// Guarda un nuevo bloque de horario escrito por el usuario
+function addScheduleBlock() {
+    const day = document.getElementById('schedule-day-select').value;
+    const subjectId = document.getElementById('schedule-subject-select').value;
+    const hours = document.getElementById('schedule-hours-input').value.trim() || "Horario libre";
+
+    if(!subjectId) return alert("Por favor crea y selecciona una materia válida.");
+
+    scheduleBlocks.push({ id: 'b_' + Date.now(), day, subjectId, hours });
+    document.getElementById('schedule-hours-input').value = '';
+    closeModal('modal-add-schedule');
+    
+    // Guardamos y refrescamos
+    localStorage.setItem('db_hub_schedule_blocks', JSON.stringify(scheduleBlocks));
+    renderSchedule();
+}
+
+// Borra un bloque específico usando su ID único
+function deleteScheduleBlock(id) {
+    scheduleBlocks = scheduleBlocks.filter(b => b.id !== id);
+    localStorage.setItem('db_hub_schedule_blocks', JSON.stringify(scheduleBlocks));
+    renderSchedule();
+}
+
 </script>
 </body>
 </html>
