@@ -30,7 +30,18 @@
             --shadow-hover: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
             --transition: all 0.3s ease;
         }
-
+        /* === AGREGA ESTO JUSTO ACÁ ABAJO === */
+        body.dark-theme {
+            --bg-main: #0f172a;       /* Fondo oscuro profundo */
+            --bg-card: #1e293b;       /* Tarjetas gris oscuro */
+            --text-main: #f8fafc;     /* Texto blanco/crema */
+            --text-muted: #94a3b8;    /* Texto secundario gris claro */
+            --border-color: #334155;  /* Bordes sutiles oscuros */
+            --primary-light: #1e3a8a; /* Variantes para contrastes oscuros */
+            --success-light: #064e3b;
+            --warning-light: #78350f;
+            --danger-light: #7f1d1d;
+        }
         * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
@@ -183,9 +194,14 @@
                 <h1>Hola, <span id="username-display" style="cursor: pointer;" onclick="changeUsername()" title="Hacé click para cambiar tu nombre">Estudiante</span> 👋</h1>
                 <p>Bienvenido a tu centro de control. Así viene tu cursada.</p>
             </div>
+            <div style="display: flex; gap: 0.5rem; width: 100%; max-width: 320px;">
+        <button class="btn" id="theme-toggle-btn" onclick="toggleTheme()" style="flex: 1;">
+            <i class="ph ph-moon"></i> Modo Oscuro
+        </button>   
             <button class="btn btn-primary" style="width: 100%; max-width: 200px;" onclick="openModal('modal-add-subject')">
                 <i class="ph ph-plus-circle"></i> Nueva Materia
             </button>
+            </div> 
         </header>
 
         <div class="dashboard-grid">
@@ -400,6 +416,9 @@
 
     function initApp() {
         loadUsername(); // <-- Agregamos esta línea
+        updateDashboard();
+        loadTheme();      // <-- Nueva línea para el tema
+        loadUsername();   // (La que agregamos antes)
         updateDashboard();
     }
 
@@ -806,6 +825,30 @@ function changeUsername() {
         localStorage.setItem('db_hub_username', newName.trim());
         document.getElementById('username-display').innerText = newName.trim();
     }
+}
+
+function toggleTheme() {
+    const isDark = document.body.classList.toggle('dark-theme');
+    localStorage.setItem('db_hub_theme', isDark ? 'dark' : 'light');
+    updateThemeButton(isDark);
+}
+
+function updateThemeButton(isDark) {
+    const btn = document.getElementById('theme-toggle-btn');
+    if (isDark) {
+        btn.innerHTML = `<i class="ph ph-sun"></i> Modo Claro`;
+    } else {
+        btn.innerHTML = `<i class="ph ph-moon"></i> Modo Oscuro`;
+    }
+}
+
+function loadTheme() {
+    const savedTheme = localStorage.getItem('db_hub_theme');
+    const isDark = savedTheme === 'dark';
+    if (isDark) {
+        document.body.classList.add('dark-theme');
+    }
+    updateThemeButton(isDark);
 }
 </script>
 </body>
